@@ -8,16 +8,18 @@ res = (720,720)
 framerate = 30
 winCondition = 5 # = Anzahl der eig. Steine, die in gegn. Basis sein müssen, um zu gewinnen
 
-grid_color = (255,255,255)
-player1_color = (255,150,0)
-player2_color = (0,50,255)
-player_color_movable = (255,200,50)
-player_color_goals = (255,255,30)
-player_color_sep = (255,0,210)
+grid_color = (161,115,81)
+player1_color = (255,156,27)
+player2_color = (106,199,229)
+player_color_select = (255,255,255)
+player_color_movable = (255,255,255)
+player_color_goals = (206,168,120)
+player_color_sep = (173,14,115)
 player_color_noGoals = (100,100,100)
-player1_color_base = (255,255,150)
-player2_color_base = (130,180,255)
+player1_color_base = (178,120,45)
+player2_color_base = (121,122,123)
 black = (0,0,0)
+grid_color_background = (55,40,32)
 
 # Game states und Spielphasen
 stateInitialize, stateControls, stateGame, stateWin = range(4)
@@ -28,12 +30,12 @@ phaseChoseMovable, phaseChoseGoal, phaseMove = range(3)
 screen = pygame.display.set_mode(res)
 clockObj = pygame.time.Clock()
 surf_win = pygame.font.Font(None, 50).render("GEWONNEN!", True, (0,0,0))
-player1_controls1_sf = pygame.font.Font(None, 30).render("Steuerung Spieler 1:", True, grid_color)
-player1_controls2_sf = pygame.font.Font(None, 25).render("Auswählen: D   Bestätigen: S   Zurück: E", True, grid_color)
-player2_controls1_sf = pygame.font.Font(None, 30).render("Steuerung Spieler 2:", True, grid_color)
-player2_controls2_sf = pygame.font.Font(None, 25).render("Auswählen:   Pfeil nach rechts", True, grid_color)
-player2_controls3_sf = pygame.font.Font(None, 25).render("Bestätigen:    Enter", True, grid_color)
-player2_controls4_sf = pygame.font.Font(None, 25).render("Zurück:          Backspace", True, grid_color)
+player1_controls1_sf = pygame.font.Font(None, 30).render("Steuerung Spieler 1:", True, player1_color)
+player1_controls2_sf = pygame.font.Font(None, 25).render("Auswählen: D   Bestätigen: S   Zurück: E", True, player1_color)
+player2_controls1_sf = pygame.font.Font(None, 30).render("Steuerung Spieler 2:", True, player2_color)
+player2_controls2_sf = pygame.font.Font(None, 25).render("Auswählen:   Pfeil nach rechts", True, player2_color)
+player2_controls3_sf = pygame.font.Font(None, 25).render("Bestätigen:    Enter", True, player2_color)
+player2_controls4_sf = pygame.font.Font(None, 25).render("Zurück:          Backspace", True, player2_color)
 screen_controls_sf = pygame.font.Font(None, 30).render("'Leertaste' um fortzufahren", True, grid_color)
 
 
@@ -44,6 +46,7 @@ class Game:
         self.squares_amount = 8 # Wenn < 8, dann Anfangspositionen von player2 anpassen
         self.grid_offset = 100
         self.margin = 2
+        self.margin2 = 7
         self.square_width = res[0]//(self.squares_amount+4)
         self.gridReset()
         self.grid_borders = [-1, self.squares_amount]
@@ -68,25 +71,25 @@ class Game:
                     for pos in worm:
                         if column == pos[0] and row == pos[1]:
                             pygame.draw.ellipse(screen, player1.color, [square_posx+self.margin, square_posy+self.margin, self.square_width-2*self.margin, self.square_width-2*self.margin])
-                            pygame.draw.ellipse(screen, black, [square_posx+self.margin, square_posy+self.margin, self.square_width-2*self.margin, self.square_width-2*self.margin],2)
+                            #pygame.draw.ellipse(screen, black, [square_posx+self.margin, square_posy+self.margin, self.square_width-2*self.margin, self.square_width-2*self.margin],2)
                 # Player 2
                 for worm in player2.worms:
                     for pos in worm:
                         if column == pos[0] and row == pos[1]:
                             pygame.draw.ellipse(screen, player2.color, [square_posx+self.margin, square_posy+self.margin, self.square_width-2*self.margin, self.square_width-2*self.margin])
-                            pygame.draw.ellipse(screen, black, [square_posx+self.margin, square_posy+self.margin, self.square_width-2*self.margin, self.square_width-2*self.margin],2)
+                            #pygame.draw.ellipse(screen, black, [square_posx+self.margin, square_posy+self.margin, self.square_width-2*self.margin, self.square_width-2*self.margin],2)
                 # Phase 1: Movable Positions
                 if self.grid_array[row][column] == 1:
-                    pygame.draw.ellipse(screen, player_color_movable, [square_posx+self.margin, square_posy+self.margin, self.square_width-2*self.margin, self.square_width-2*self.margin])
-                # Phase 2: ALLE Goal Positions
-                if self.grid_array[row][column] in [2,3]:
+                    pygame.draw.ellipse(screen, player_color_movable, [square_posx+self.margin2, square_posy+self.margin2, self.square_width-2*self.margin2, self.square_width-2*self.margin2])
+                # Phase 2: NORMALE Goal Positions
+                if self.grid_array[row][column] in [2, 2.3]:
                     pygame.draw.ellipse(screen, player_color_goals, [square_posx+self.margin, square_posy+self.margin, self.square_width-2*self.margin, self.square_width-2*self.margin])
-                # Phase 2: SELEKTIERTE Goal Position
-                if self.grid_array[row][column] == 3:
-                    pygame.draw.ellipse(screen, player_color_movable, [square_posx+self.margin, square_posy+self.margin, self.square_width-2*self.margin, self.square_width-2*self.margin],5)
                 # Phase 2: Goal Position bei zu durchtrennendem Wurm
-                if self.grid_array[row][column] == 4:
+                if self.grid_array[row][column] in [4, 4.3]:
                     pygame.draw.ellipse(screen, player_color_sep, [square_posx+self.margin, square_posy+self.margin, self.square_width-2*self.margin, self.square_width-2*self.margin])
+                # Phase 2: SELEKTIERTE Goal Position
+                if self.grid_array[row][column] in [2.3, 4.3]:
+                    pygame.draw.ellipse(screen, player_color_select, [square_posx+self.margin, square_posy+self.margin, self.square_width-2*self.margin, self.square_width-2*self.margin],5)
                 # Phase 2: Keine Goal Positions vorhanden
                 if self.grid_array[row][column] == 5:
                     pygame.draw.ellipse(screen, player_color_noGoals, [square_posx+self.margin, square_posy+self.margin, self.square_width-2*self.margin, self.square_width-2*self.margin])
@@ -119,7 +122,6 @@ class Worm:
         [player_recent_pos.extend(worm) for worm in player_recent.worms]
         player_other_pos = []
         [player_other_pos.extend(worm) for worm in player_other.worms]
-
 
         # 1. SUCHE DAZUGEHÖRIGEN WURM
         for worm in self.worms:
@@ -176,7 +178,7 @@ class Worm:
             elif adjacentPositions[2] >= 2:
                 goals_remove.append(goals[i])
         # Jetzt falsche goals tatsächlich entfernen
-        if goals_remove != []: [goals.remove(pos) for pos in goals_remove]
+        [goals.remove(pos) for pos in goals_remove]
 
         return [self.worms.index(worm_recent), pos_move, goals+goals_sep2, goals, goals_sep2, goals_sep1]
 
@@ -225,13 +227,13 @@ class Worm:
                 worms_temp = []
                 # Anfang
                 if worm_recent_other_i > 0:
-                    worms_temp.append(player_other.worms[:worm_recent_other_i][0])
+                    worms_temp.extend(player_other.worms[:worm_recent_other_i])
                 # Mittelteil
                 worms_temp.append(player_other.worms[worm_recent_other_i] [:pos_other_del_i])
                 worms_temp.append(player_other.worms[worm_recent_other_i] [pos_other_del_i:])
                 # Ende
                 if worm_recent_other_i < len(player_other.worms)-1:
-                    worms_temp.append(player_other.worms[worm_recent_other_i+1:][0])
+                    worms_temp.extend(player_other.worms[worm_recent_other_i+1:])
                 player_other.worms = worms_temp
 
     def getAdjacent(self, pos, worms):
@@ -278,7 +280,6 @@ class Worm:
             worm_temp = worm_temp[::worm1_order]
             self.worms.remove(adjacentPositions[1])
             self.worms[self.worms.index(worm_recent)] = worm_temp
-            #print("NACH CONNECT: self.worms:", self.worms, "\n")
 
     def hasWon(self):
         # Spiel gewonnen, wenn mind. 5 eig. Steine in gegn. Basis
@@ -291,11 +292,9 @@ class Worm:
             return True
 
         # TO DO:
-        # (!) unbekannter Runtime-Error
         # (?) Bei zweitem Wurm kann man nicht den gleichen Wurm nochmal steuern
         # (?) Design Fehler Till
-        # wenn nur eine bew.möglichkeit, selektion nicht angezeigt
-        # farbe goalPositions bei orangener base undeutlich
+        # Farben
 
 
 # INITIALISIERUNGEN
@@ -339,7 +338,7 @@ while True:
     if gameState == stateControls:
         clockObj.tick(framerate)
 
-        screen.fill(black)
+        screen.fill(grid_color_background)
         screen.blit(player1_controls1_sf, [res[0]/8, res[1]/4])
         screen.blit(player1_controls2_sf, [res[0]/20, res[1]/3])
         screen.blit(player2_controls1_sf, [res[0]/8*5, res[1]/4])
@@ -373,7 +372,10 @@ while True:
             if movablePositions == None:
                 movablePositions = player_recent.movablePositions()
                 # MovablePositions in Grid Array eintragen
-                game.grid_array[movablePositions[counter][1]][movablePositions[counter][0]] = 1
+                if movablePositions != []:
+                    game.grid_array[movablePositions[counter][1]][movablePositions[counter][0]] = 1
+                else:
+                    gameState = stateWin
                 # Anzahl der Züge festlegen
                 player_turns_max = len(movablePositions)//2
             for event in pygame.event.get():
@@ -384,7 +386,7 @@ while True:
                     game.grid_array [movablePositions[counter][1]] [movablePositions[counter][0]] = 1
                 # 2. Bestätigen
                 if event.type == KEYDOWN and event.key == player_keys[player_recent][confirm] and counter > -1:
-                    gamePhase =phaseChoseGoal
+                    gamePhase = phaseChoseGoal
                     break
 
         # PHASE 2: ZIELPOSITION AUSWÄHLEN
@@ -395,12 +397,13 @@ while True:
                 # Zielpositionen in Grid eintragen
                 for pos in goalPositions[2]:
                     if pos in goalPositions[3]:
-                        # normal
+                        # Zielstein am eig. Wurm
                         game.grid_array[pos[1]][pos[0]] = 2
                     else:
                         # Zielstein hinter gegn. Wurm
                         game.grid_array[pos[1]][pos[0]] = 4
                 counter_last = counter
+                if len(goalPositions[2]) != 0: counter = (counter + 1)%len(goalPositions[2])
             for event in pygame.event.get():
                 # Wenn keine Zielpositionen vorhanden: Bewegung nicht möglich
                 if len(goalPositions[2]) == 0:
@@ -409,11 +412,15 @@ while True:
                     # 1. Zielposition auswählen
                     if event.type == KEYDOWN and event.key == player_keys[player_recent][select]:
                         counter = (counter + 1)%len(goalPositions[2])
-                        game.grid_array[goalPositions[2][counter][1]][goalPositions[2][counter][0]] = 3
-                        if goalPositions[2][counter-1] in goalPositions[3]:
-                            game.grid_array[goalPositions[2][counter-1][1]][goalPositions[2][counter-1][0]] = 2
+                        if goalPositions[2][counter] in goalPositions[3]:
+                            game.grid_array[goalPositions[2][counter][1]][goalPositions[2][counter][0]] = 2.3
                         else:
-                            game.grid_array[goalPositions[2][counter-1][1]][goalPositions[2][counter-1][0]] = 4
+                            game.grid_array[goalPositions[2][counter][1]][goalPositions[2][counter][0]] = 4.3
+                        if len(goalPositions[2]) > 1:
+                            if goalPositions[2][counter-1] in goalPositions[3]:
+                                game.grid_array[goalPositions[2][counter-1][1]][goalPositions[2][counter-1][0]] = 2
+                            else:
+                                game.grid_array[goalPositions[2][counter-1][1]][goalPositions[2][counter-1][0]] = 4
                     # 2. Bestätigen
                     if event.type == KEYDOWN and event.key == player_keys[player_recent][confirm]:
                         gamePhase = phaseMove
@@ -427,10 +434,7 @@ while True:
         # PHASE 3: WURM BEWEGEN
         if gamePhase == phaseMove:
             # Bewegen
-            #print("VOR MOVE player_recent.worms", player_recent.worms)
             player_recent.move(goalPositions[0],goalPositions[1],goalPositions[2][counter])
-            #print("NACH MOVE player_recent.worms", player_recent.worms, "\n")
-
             # Ev. getrennte Würmer verbinden
             player_recent.connect(goalPositions[2][counter], player_recent.worms[goalPositions[0]])
             # Ev. Spielzüge verringern
@@ -469,7 +473,7 @@ while True:
                 player_other = player2
 
         # Alles zeichnen
-        screen.fill(black)
+        screen.fill(grid_color_background)
         game.draw()
         pygame.display.update()
 
